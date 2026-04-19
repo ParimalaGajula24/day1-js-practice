@@ -2,30 +2,31 @@
   "name": "day1-js-practice",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "node index",
-    "dev": "nodemon index"
+  "keywords": [],
+  "homepage": "https://github.com/ParimalaGajula24/day1-js-practice#readme",
+  "bugs": {
+    "url": "https://github.com/ParimalaGajula24/day1-js-practice/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ParimalaGajula24/day1-js-practice.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
+  "author": "",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/ParimalaGajula24/day1-js-practice/issues"
+  "main": "app.js",
+  "scripts": {
+    "devStart": "nodemon server.js"
   },
-  "homepage": "https://github.com/ParimalaGajula24/day1-js-practice#readme",
   "dependencies": {
     "express": "^5.2.1",
     "express-handlebars": "^9.0.1",
     "moment": "^2.30.1",
+    "mongoose": "^9.4.1",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "dotenv": "^17.4.2",
     "nodemon": "^3.1.14"
   }
 }
