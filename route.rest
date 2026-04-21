@@ -2,25 +2,55 @@ GET http://localhost:3000/subscribers
 
 ###
 
-GET http://localhost:3000/subscribers/69e504963457c692d53ffde8
+GET http://localhost:3000/subscribers/69e6363a5449a6428d1168a2
 
 ###
 POST http://localhost:3000/subscribers
 Content-Type: application/json
 
 {
-    "name":"Amazing Person",
-    "subscribedToChannel":"Amazing Youtuber"
+    "name":"chitti",
+    "subscribedToChannel":"chittichannel"
 }
 
 ###
-DELETE http://localhost:3000/subscribers/69e50dfb3ce8f64a635ec82a
+DELETE http://localhost:3000/subscribers/69e6363a5449a6428d1168a2
 
 ###
-PATCH http://localhost:3000/subscribers/69e50e434f3526c2f3a6962b
+PATCH http://localhost:3000/subscribers/69e6363a5449a6428d1168a2
 Content-Type: application/json  
 
 {
   "name": "Test User",
   "subscribedToChannel": "Test Channel"
 }
+
+###
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+   "email": "user2@gmail.com",
+   "password": "123456"
+}
+
+###
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@gmail.com",
+  "password": "123456"
+}
+
+###
+GET http://localhost:3000/auth/protected
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3MzgyMDksImV4cCI6MTc3Njc0MTgwOX0.MSNqgw2txXSGwLlO09aMQfdIE96zA9GdN8-PMsOv_9U
+
+###
+GET http://localhost:3000/auth/login
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3MzgyMDksImV4cCI6MTc3Njc0MTgwOX0.MSNqgw2txXSGwLlO09aMQfdIE96zA9GdN8-PMsOv_9U
+
+###
+
+
