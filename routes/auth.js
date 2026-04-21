@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const User=require('../models/User')
 const authenticateToken = require('../middleware/auth')
+const Post = require('../models/Post')
 
 //registering a new user
 router.post('/register',async (req,res)=>{
@@ -104,4 +105,80 @@ router.get('/profile', authenticateToken, async (req, res) => {
     })
 })
 
+router.post('/posts',authenticateToken,async (req,res)=>{
+    try{
+        const {title,content}=req.body
+        const post=new Post({
+            title,
+            content,
+            userId:req.user.userId
+        })
+        const savedPost=await post.save()
+        res.status(201).json({
+            success:true,
+            data:savedPost
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            success:false,
+            message:err.message
+        })
+    }
+})
+
+router.get('/posts',authenticateToken,async (req,res)=>{
+    try{
+        const posts = await Post.find({ userId: req.user.userId })
+        res.status(200).json({
+            success:true,
+            data:posts
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            success:false,
+            message:err.message
+        })
+    }
+})
+
+router.delete('/posts/:id',authenticateToken,async (req,res)=>{
+    try{
+        const postId=req.params.id
+        //1.Find post
+        const post= await Post.findById(postId)
+        //2.check if exists
+        if(!postId){
+            return res.status(404).json({
+                success:false,
+                message:"Post not found"
+            })
+        }
+        //3. Ownership
+        if(post.userId.toString() !== req.user.userId){
+            return res.status(403).json({
+                success:false,
+                message:"Unauthorized"
+            })
+        }
+        //4/Delete post
+        await post.deleteOne()
+        res.status(200).json({
+            success:true,
+            message:"Post Deleted Successfully"
+        })
+
+    }
+    catch(err){
+        res.status(500).json(
+            {
+                success: false,
+                message: err.message 
+            }
+        )
+    }
+
+
+})
 module.exports=router

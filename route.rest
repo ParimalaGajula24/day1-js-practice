@@ -45,12 +45,26 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/auth/protected
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3MzgyMDksImV4cCI6MTc3Njc0MTgwOX0.MSNqgw2txXSGwLlO09aMQfdIE96zA9GdN8-PMsOv_9U
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3ODkwNTcsImV4cCI6MTc3Njc5MjY1N30.EEwxPfLa_yvdgJFtdXMQng3_C7ucJZ--tetH82TVqt4
+###
+GET http://localhost:3000/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3ODkwNTcsImV4cCI6MTc3Njc5MjY1N30.EEwxPfLa_yvdgJFtdXMQng3_C7ucJZ--tetH82TVqt4
+###
+POST http://localhost:3000/auth/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3ODkwNTcsImV4cCI6MTc3Njc5MjY1N30.EEwxPfLa_yvdgJFtdXMQng3_C7ucJZ--tetH82TVqt4
+Content-Type: application/json
+
+{
+  "title": "Test Post",
+  "content": "Hello world"
+}
 
 ###
-GET http://localhost:3000/auth/login
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3MzgyMDksImV4cCI6MTc3Njc0MTgwOX0.MSNqgw2txXSGwLlO09aMQfdIE96zA9GdN8-PMsOv_9U
+GET http://localhost:3000/auth/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3ODkwNTcsImV4cCI6MTc3Njc5MjY1N30.EEwxPfLa_yvdgJFtdXMQng3_C7ucJZ--tetH82TVqt4
 
 ###
+DELETE http://localhost:3000/auth/posts/69e7a6738b190c4f82e9c461
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWU2YzdkNDJhNDFjM2FmMTI0OWU4NDEiLCJpYXQiOjE3NzY3ODkwNTcsImV4cCI6MTc3Njc5MjY1N30.EEwxPfLa_yvdgJFtdXMQng3_C7ucJZ--tetH82TVqt4
 
 
