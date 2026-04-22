@@ -108,9 +108,15 @@ router.get('/profile', authenticateToken, async (req, res) => {
 router.post('/posts',authenticateToken,async (req,res)=>{
     try{
         const {title,content}=req.body
+        if(!title || !content || title.trim()==="" || content.trim()===""){
+            return res.status(400).json({
+                success:false,
+                message:"Both title and content are required"
+            })
+        }
         const post=new Post({
-            title,
-            content,
+            title:title.trim(),
+            content:content.trim(),
             userId:req.user.userId
         })
         const savedPost=await post.save()
@@ -122,7 +128,7 @@ router.post('/posts',authenticateToken,async (req,res)=>{
     catch(err){
         res.status(500).json({
             success:false,
-            message:err.message
+            message:'Internal server error'
         })
     }
 })
@@ -149,7 +155,7 @@ router.delete('/posts/:id',authenticateToken,async (req,res)=>{
         //1.Find post
         const post= await Post.findById(postId)
         //2.check if exists
-        if(!postId){
+        if(!post){
             return res.status(404).json({
                 success:false,
                 message:"Post not found"
