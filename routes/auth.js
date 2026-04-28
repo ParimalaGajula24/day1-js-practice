@@ -28,7 +28,10 @@ router.post('/register',async (req,res)=>{
         res.status(201).json({
             success:true,
             msg:"User registered successfully",
-            data:newUser
+            data:{
+                _id:user._id,
+                email:user.email
+            }
         })
     }
     catch(err){
@@ -85,7 +88,7 @@ router.post('/login',async (req,res)=>{
         })
     }
         
-    
+    console.log("LOGIN SECRET:", process.env.JWT_SECRET)
 })
 
 

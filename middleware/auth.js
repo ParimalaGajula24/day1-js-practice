@@ -12,6 +12,7 @@ function authenticateToken(req,res,next){
     }
     try{
         const decoded=jwt.verify(token,process.env.JWT_SECRET)
+        console.log("VERIFY SECRET:", process.env.JWT_SECRET)
         req.user=decoded
         next()
     }
@@ -20,6 +21,7 @@ function authenticateToken(req,res,next){
         success: false,
         message: "Invalid token"
     })
+    
 
 }}
 
