@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User=require('../models/User')
 const authenticateToken = require('../middleware/auth')
@@ -34,7 +34,7 @@ router.post('/register',async (req,res)=>{
     catch(err){
         res.status(500).json({
             success:false,
-            msg:err.msg
+            msg:err.message
         })
     }
 })
@@ -84,6 +84,8 @@ router.post('/login',async (req,res)=>{
             message:err.message
         })
     }
+        
+    
 })
 
 

@@ -1,22 +1,69 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 const express = require('express');
-const app=express();
-const authRouter=require('./routes/auth')
 const mongoose = require('mongoose');
-const cors=require('cors');
+const cors = require('cors');
 
+const authRouter = require('./routes/auth');
+const subscriberRouter = require('./routes/subscribers');
 
-mongoose.connect(process.env.DATABASE_URL)
+const app = express();
 
-const db=mongoose.connection
-db.on('error',(error)=>console.log(error));
-db.once('open',()=>console.log('Connected to database'));
-app.use(cors())
+/* =========================
+   MIDDLEWARE
+========================= */
 app.use(express.json());
-const subscriberRouter=require('./routes/subscribers');
-app.use('/subscribers',subscriberRouter);
-app.use('/auth',authRouter)
+app.use(cors());
 
-const PORT = process.env.PORT || 3000
+/* =========================
+   DEBUG INFO
+========================= */
+console.log("🚀 NEW DEPLOYMENT RUNNING");
+console.log("DB URL:", process.env.DATABASE_URL);
 
-app.listen(PORT, () => console.log(`server started on port ${PORT}`))
+/* =========================
+   MONGODB CONNECTION (FIXED)
+========================= */
+mongoose.connect(process.env.DATABASE_URL, {
+  serverSelectionTimeoutMS: 5000, // fail fast
+})
+.then(() => {
+  console.log("✅ MongoDB connected successfully");
+})
+.catch(err => {
+  console.error("❌ MongoDB connection error:", err.message);
+});
+
+/* =========================
+   CONNECTION EVENTS
+========================= */
+const db = mongoose.connection;
+
+db.on('connecting', () => console.log('⏳ Connecting to MongoDB...'));
+db.on('connected', () => console.log('✅ Connected to MongoDB'));
+db.on('error', (err) => console.log('❌ Mongo error:', err.message));
+db.on('disconnected', () => console.log('⚠️ MongoDB disconnected'));
+
+/* =========================
+   ROUTES
+========================= */
+app.use('/auth', authRouter);
+app.use('/subscribers', subscriberRouter);
+
+/* =========================
+   HEALTH CHECK
+========================= */
+app.get('/', (req, res) => {
+  res.send('API is running 🚀');
+});
+
+/* =========================
+   START SERVER
+========================= */
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+  console.log(`🌐 Server started on port ${PORT}`);
+});
