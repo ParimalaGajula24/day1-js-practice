@@ -9,6 +9,8 @@ const cors = require('cors');
 const authRouter = require('./routes/auth');
 const subscriberRouter = require('./routes/subscribers');
 
+console.log("CI/CD verified 🚀")
+
 const app = express();
 
 /* =========================
