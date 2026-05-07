@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const authRouter = require('./routes/auth');
 const subscriberRouter = require('./routes/subscribers');
+const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 console.log("CI/CD verified 🚀")
 
@@ -23,7 +24,6 @@ app.use(cors());
    DEBUG INFO
 ========================= */
 console.log("🚀 NEW DEPLOYMENT RUNNING");
-console.log("DB URL:", process.env.DATABASE_URL);
 
 /* =========================
    MONGODB CONNECTION (FIXED)
@@ -60,6 +60,9 @@ app.use('/subscribers', subscriberRouter);
 app.get('/', (req, res) => {
   res.send('API is running 🚀');
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 /* =========================
    START SERVER

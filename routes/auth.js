@@ -87,8 +87,6 @@ router.post('/login',async (req,res)=>{
             message:err.message
         })
     }
-        
-    console.log("LOGIN SECRET:", process.env.JWT_SECRET)
 })
 
 
@@ -102,12 +100,19 @@ router.get('/protected', authenticateToken, (req, res) => {
 })
 
 router.get('/profile', authenticateToken, async (req, res) => {
-    const user = await User.findById(req.user.userId)
-
-    res.json({
-        success: true,
-        data: user
-    })
+    try{
+        const user = await User.findById(req.user.userId)
+        res.json({
+            success: true,
+            data: user
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            success:false,
+            message:err.message
+        })
+    }
 })
 
 router.post('/posts',authenticateToken,async (req,res)=>{
