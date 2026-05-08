@@ -78,17 +78,26 @@ router.post('/login',async (req,res)=>{
                 message:"Invalid credentials"
             })
         }
-        //3.Generate a token
-        const token=jwt.sign(
+        //3.Generate tokens
+        const accessToken=jwt.sign(
             {userId:user._id},
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         )
-        //4.sends response
+        const refreshToken=jwt.sign(
+            {userId:user._id},
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        )
+        //4.Save refresh token to DB
+        user.refreshToken=refreshToken
+        await user.save()
+        //5.sends response
         res.status(200).json({
             success:true,
             message:"Login Successful",
-            token
+            accessToken,
+            refreshToken
         })
     }
     catch(err){
@@ -207,4 +216,55 @@ router.delete('/posts/:id',authenticateToken,async (req,res)=>{
 
 
 })
+router.post('/refresh', async (req, res) => {
+    try {
+        const { refreshToken } = req.body
+        if (!refreshToken) {
+            return res.status(401).json({
+                success: false,
+                message: "Refresh token required"
+            })
+        }
+        // Verify the token signature and expiry
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+        // Check it matches what's stored in DB
+        const user = await User.findById(decoded.userId)
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "Invalid refresh token"
+            })
+        }
+        const accessToken = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+        res.status(200).json({
+            success: true,
+            accessToken
+        })
+    } catch (err) {
+        return res.status(403).json({
+            success: false,
+            message: "Invalid or expired refresh token"
+        })
+    }
+})
+
+router.post('/logout', authenticateToken, async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user.userId, { refreshToken: null })
+        res.status(200).json({
+            success: true,
+            message: "Logged out successfully"
+        })
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        })
+    }
+})
+
 module.exports=router
