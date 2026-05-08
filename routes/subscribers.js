@@ -7,13 +7,13 @@ router.get('/',async (req,res)=>{
     try{
         const subscribers=await Subscriber.find()
         res.status(200).json({
-            status:true,
+            success:true,
             data:subscribers
         })
     }
     catch(error){
         res.status(500).json({
-            status:false,
+            success:false,
             message:error.message
         })
     }
@@ -22,16 +22,24 @@ router.get('/',async (req,res)=>{
 //Getting one subscriber
 router.get('/:id',getSubscriber,(req,res)=>{
     res.status(200).json({
-        status:true,
+        success:true,
         data:res.subscriber
     })
 
 })
 //Creating one subscriber
 router.post('/',async (req,res)=>{
+    const name = req.body.name && req.body.name.trim()
+    const subscribedToChannel = req.body.subscribedToChannel && req.body.subscribedToChannel.trim()
+    if(!name || !subscribedToChannel){
+        return res.status(400).json({
+            success:false,
+            message:"Name and subscribedToChannel are required"
+        })
+    }
     const subscriber= new Subscriber({
-        name:req.body.name,
-        subscribedToChannel:req.body.subscribedToChannel
+        name,
+        subscribedToChannel
     })
     try{
         const newSubscriber = await subscriber.save()
@@ -51,11 +59,31 @@ router.post('/',async (req,res)=>{
 })
 //Updating one subscriber
 router.patch('/:id',getSubscriber,async (req,res)=>{
+    const hasName = Object.prototype.hasOwnProperty.call(req.body, 'name')
+    const hasChannel = Object.prototype.hasOwnProperty.call(req.body, 'subscribedToChannel')
+    if(!hasName && !hasChannel){
+        return res.status(400).json({
+            success:false,
+            message:"Provide name or subscribedToChannel to update"
+        })
+    }
     if(req.body.name != null){
-        res.subscriber.name=req.body.name
+        if(typeof req.body.name !== 'string' || req.body.name.trim() === ''){
+            return res.status(400).json({
+                success:false,
+                message:"name must be a non-empty string"
+            })
+        }
+        res.subscriber.name=req.body.name.trim()
     }
     if(req.body.subscribedToChannel != null){
-        res.subscriber.subscribedToChannel=req.body.subscribedToChannel
+        if(typeof req.body.subscribedToChannel !== 'string' || req.body.subscribedToChannel.trim() === ''){
+            return res.status(400).json({
+                success:false,
+                message:"subscribedToChannel must be a non-empty string"
+            })
+        }
+        res.subscriber.subscribedToChannel=req.body.subscribedToChannel.trim()
     }
     try{
         const updatedsubscriber= await res.subscriber.save()
@@ -66,7 +94,10 @@ router.patch('/:id',getSubscriber,async (req,res)=>{
           })
     }
     catch(err){
-        res.status(400).json({msg:err.message})
+        res.status(400).json({
+            success:false,
+            message:err.message
+        })
     }
 })
     
@@ -82,7 +113,10 @@ router.delete('/:id',getSubscriber,async (req,res)=>{
           })
     }
     catch(err){
-        res.status(500).json({msg:err.message})
+        res.status(500).json({
+            success:false,
+            message:err.message
+        })
     }
 })
 
@@ -98,7 +132,10 @@ async function getSubscriber(req,res,next){
         }
     }
     catch(err){
-        return res.status(500).json({msg:err.message})
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        })
     }
     res.subscriber=subscriber
     next()

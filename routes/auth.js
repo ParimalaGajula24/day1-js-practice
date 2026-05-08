@@ -9,25 +9,33 @@ const Post = require('../models/Post')
 //registering a new user
 router.post('/register',async (req,res)=>{
     try{
+        const email = req.body.email && req.body.email.trim()
+        const password = req.body.password
+        if(!email || !password){
+            return res.status(400).json({
+                success:false,
+                message:"Email and password are required"
+            })
+        }
         //check if user exists
-        const existingUser = await User.findOne({email:req.body.email})
+        const existingUser = await User.findOne({email})
         if(existingUser){
             return res.status(400).json({
                 success:false,
-                msg:"User already exists"
+                message:"User already exists"
             })
         }
         //hash password
-        const hashedPassword=await bcrypt.hash(req.body.password,10)
+        const hashedPassword=await bcrypt.hash(password,10)
         //create a new user 
         const user =new User({
-            email:req.body.email,
+            email,
             password:hashedPassword
         })
-        const newUser=await user.save()
+        await user.save()
         res.status(201).json({
             success:true,
-            msg:"User registered successfully",
+            message:"User registered successfully",
             data:{
                 _id:user._id,
                 email:user.email
@@ -37,7 +45,7 @@ router.post('/register',async (req,res)=>{
     catch(err){
         res.status(500).json({
             success:false,
-            msg:err.message
+            message:err.message
         })
     }
 })
@@ -45,15 +53,17 @@ router.post('/register',async (req,res)=>{
 //login
 router.post('/login',async (req,res)=>{
     try{
+        const email = req.body.email && req.body.email.trim()
+        const password = req.body.password
         // validation
-        if (!req.body.email || !req.body.password) {
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "Email and password are required"
             })
         }
         //1.find the user
-        const user = await User.findOne({email:req.body.email})
+        const user = await User.findOne({email})
         if(!user){
             return res.status(400).json({
                 success:false,
@@ -61,7 +71,7 @@ router.post('/login',async (req,res)=>{
             })
         }
         //2.comparepasswords
-        const isMatch = await bcrypt.compare(req.body.password,user.password)
+        const isMatch = await bcrypt.compare(password,user.password)
         if(!isMatch){
             return res.status(400).json({
                 success:false,
