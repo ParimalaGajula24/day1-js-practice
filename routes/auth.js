@@ -9,25 +9,33 @@ const Post = require('../models/Post')
 //registering a new user
 router.post('/register',async (req,res)=>{
     try{
+        const email = req.body.email && req.body.email.trim()
+        const password = req.body.password
+        if(!email || !password){
+            return res.status(400).json({
+                success:false,
+                message:"Email and password are required"
+            })
+        }
         //check if user exists
-        const existingUser = await User.findOne({email:req.body.email})
+        const existingUser = await User.findOne({email})
         if(existingUser){
             return res.status(400).json({
                 success:false,
-                msg:"User already exists"
+                message:"User already exists"
             })
         }
         //hash password
-        const hashedPassword=await bcrypt.hash(req.body.password,10)
+        const hashedPassword=await bcrypt.hash(password,10)
         //create a new user 
         const user =new User({
-            email:req.body.email,
+            email,
             password:hashedPassword
         })
-        const newUser=await user.save()
+        await user.save()
         res.status(201).json({
             success:true,
-            msg:"User registered successfully",
+            message:"User registered successfully",
             data:{
                 _id:user._id,
                 email:user.email
@@ -37,7 +45,7 @@ router.post('/register',async (req,res)=>{
     catch(err){
         res.status(500).json({
             success:false,
-            msg:err.message
+            message:err.message
         })
     }
 })
@@ -45,15 +53,17 @@ router.post('/register',async (req,res)=>{
 //login
 router.post('/login',async (req,res)=>{
     try{
+        const email = req.body.email && req.body.email.trim()
+        const password = req.body.password
         // validation
-        if (!req.body.email || !req.body.password) {
+        if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: "Email and password are required"
             })
         }
         //1.find the user
-        const user = await User.findOne({email:req.body.email})
+        const user = await User.findOne({email})
         if(!user){
             return res.status(400).json({
                 success:false,
@@ -61,24 +71,33 @@ router.post('/login',async (req,res)=>{
             })
         }
         //2.comparepasswords
-        const isMatch = await bcrypt.compare(req.body.password,user.password)
+        const isMatch = await bcrypt.compare(password,user.password)
         if(!isMatch){
             return res.status(400).json({
                 success:false,
                 message:"Invalid credentials"
             })
         }
-        //3.Generate a token
-        const token=jwt.sign(
+        //3.Generate tokens
+        const accessToken=jwt.sign(
             {userId:user._id},
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         )
-        //4.sends response
+        const refreshToken=jwt.sign(
+            {userId:user._id},
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        )
+        //4.Save refresh token to DB
+        user.refreshToken=refreshToken
+        await user.save()
+        //5.sends response
         res.status(200).json({
             success:true,
             message:"Login Successful",
-            token
+            accessToken,
+            refreshToken
         })
     }
     catch(err){
@@ -87,8 +106,6 @@ router.post('/login',async (req,res)=>{
             message:err.message
         })
     }
-        
-    console.log("LOGIN SECRET:", process.env.JWT_SECRET)
 })
 
 
@@ -102,12 +119,19 @@ router.get('/protected', authenticateToken, (req, res) => {
 })
 
 router.get('/profile', authenticateToken, async (req, res) => {
-    const user = await User.findById(req.user.userId)
-
-    res.json({
-        success: true,
-        data: user
-    })
+    try{
+        const user = await User.findById(req.user.userId)
+        res.json({
+            success: true,
+            data: user
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            success:false,
+            message:err.message
+        })
+    }
 })
 
 router.post('/posts',authenticateToken,async (req,res)=>{
@@ -192,4 +216,55 @@ router.delete('/posts/:id',authenticateToken,async (req,res)=>{
 
 
 })
+router.post('/refresh', async (req, res) => {
+    try {
+        const { refreshToken } = req.body
+        if (!refreshToken) {
+            return res.status(401).json({
+                success: false,
+                message: "Refresh token required"
+            })
+        }
+        // Verify the token signature and expiry
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+        // Check it matches what's stored in DB
+        const user = await User.findById(decoded.userId)
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({
+                success: false,
+                message: "Invalid refresh token"
+            })
+        }
+        const accessToken = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        )
+        res.status(200).json({
+            success: true,
+            accessToken
+        })
+    } catch (err) {
+        return res.status(403).json({
+            success: false,
+            message: "Invalid or expired refresh token"
+        })
+    }
+})
+
+router.post('/logout', authenticateToken, async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user.userId, { refreshToken: null })
+        res.status(200).json({
+            success: true,
+            message: "Logged out successfully"
+        })
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        })
+    }
+})
+
 module.exports=router
