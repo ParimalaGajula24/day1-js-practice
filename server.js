@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const authRouter = require('./routes/auth');
 const subscriberRouter = require('./routes/subscribers');
+const aiRouter = require('./routes/ai');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 console.log("CI/CD verified 🚀")
@@ -53,6 +54,7 @@ db.on('disconnected', () => console.log('⚠️ MongoDB disconnected'));
 ========================= */
 app.use('/auth', authRouter);
 app.use('/subscribers', subscriberRouter);
+app.use('/ai', aiRouter);
 
 /* =========================
    HEALTH CHECK
